@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/util
+	http://www.springframework.org/schema/util/spring-util-3.0.xsd"
+	default-lazy-init="false" default-autowire="byName">
+
+	<description>quartz config</description>
+
+	<bean id="mySimpleWorker" class="com.zl.spring.worker.service.MySimpleWorker"/>
+
+	<bean id="mySimpleWorkerJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="mySimpleWorker"/>
+		<property name="targetMethod" value="execute"/>
+		<property name="concurrent" value="false"/>
+	</bean>
+
+	<bean id="mySimpleWorkerTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="mySimpleWorkerJobDetail"/>
+		<property name="cronExpression" value="0 0 1 * * ?"/>
+		<property name="misfireInstruction">
+			<util:constant static-field="org.quartz.CronTrigger.MISFIRE_INSTRUCTION_DO_NOTHING" />
+		</property>
+	</bean>
+
+	<bean id="scheduler"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="dataSource">
+			<null />
+		</property>
+		<property name="autoStartup" value="false" />
+		<property name="triggers">
+			<list>
+				<ref local="mySimpleWorkerTrigger"/>
+			</list>
+		</property>
+	</bean>
+
+</beans>
